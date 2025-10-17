@@ -82,6 +82,20 @@ export const useTouchpadDetection = ({
     const currentDirection = Math.sign(e.deltaY);
     const timeSinceLastEvent = now - lastEventTimeRef.current;
 
+    // Check for direction change - if direction changed, reset momentum state
+    const hasDirectionChanged = 
+      lastDirectionRef.current !== 0 && 
+      currentDirection !== lastDirectionRef.current;
+
+    // Reset momentum tracking on direction change to prevent stuck states
+    if (hasDirectionChanged) {
+      lastDeltaRef.current = 0;
+      lastEventTimeRef.current = 0;
+      if (debug) {
+        console.log('🔄 Direction changed - resetting momentum state');
+      }
+    }
+
     // Delta pattern analysis for momentum detection
     // A scroll is momentum (not intentional) if ALL of these conditions are true:
 
@@ -98,8 +112,9 @@ export const useTouchpadDetection = ({
     const isDeltaNotIncreasing = currentDelta <= lastDeltaRef.current;
 
     // All three must be true for momentum detection
+    // Direction changes always result in intentional scroll
     const isMomentumScroll =
-      isTimeTooQuick && isSameDirection && isDeltaNotIncreasing;
+      !hasDirectionChanged && isTimeTooQuick && isSameDirection && isDeltaNotIncreasing;
     const isIntentionalScroll = !isMomentumScroll;
 
     // Update tracking values for next event comparison
@@ -113,6 +128,7 @@ export const useTouchpadDetection = ({
         absDelta: currentDelta,
         minDelta,
         timeSinceLastEvent,
+        hasDirectionChanged,
         isTimeTooQuick,
         isSameDirection,
         isDeltaNotIncreasing,
@@ -121,6 +137,7 @@ export const useTouchpadDetection = ({
           ? '🌊 INERTIA DETECTED'
           : '👆 INTENTIONAL',
         conditions: {
+          directionChanged: hasDirectionChanged,
           timeTooQuick: isTimeTooQuick,
           sameDirection: isSameDirection,
           deltaNotIncreasing: isDeltaNotIncreasing,

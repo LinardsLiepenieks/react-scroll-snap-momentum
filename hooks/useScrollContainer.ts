@@ -103,7 +103,9 @@ export const useScrollContainer = ({
   const [currentSection, setCurrentSection] = useState(0);
   const isScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const failsafeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastScrollTimeRef = useRef(0);
+  const lastScrollDirectionRef = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -136,15 +138,27 @@ export const useScrollContainer = ({
         isScrollingRef.current = true;
         lastScrollTimeRef.current = Date.now();
         
-        // Clear any existing timeout
+        // Clear any existing timeouts
         if (scrollTimeoutRef.current) {
           clearTimeout(scrollTimeoutRef.current);
         }
+        if (failsafeTimeoutRef.current) {
+          clearTimeout(failsafeTimeoutRef.current);
+        }
         
-        // Set timeout to unlock scrolling if intersection observer fails
+        // Primary timeout to unlock scrolling if intersection observer fails
         scrollTimeoutRef.current = setTimeout(() => {
           isScrollingRef.current = false;
-        }, 2000); // 2 second safety timeout
+        }, 1500); // Reduced from 2000ms to 1500ms for faster recovery
+        
+        // Aggressive failsafe timeout - always unlocks regardless of other conditions
+        failsafeTimeoutRef.current = setTimeout(() => {
+          isScrollingRef.current = false;
+          if (scrollTimeoutRef.current) {
+            clearTimeout(scrollTimeoutRef.current);
+            scrollTimeoutRef.current = null;
+          }
+        }, 800); // Very aggressive 800ms failsafe
         
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         setCurrentSection(sectionIndex);
@@ -181,10 +195,14 @@ export const useScrollContainer = ({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            // Clear timeout since intersection observer worked
+            // Clear all timeouts since intersection observer worked
             if (scrollTimeoutRef.current) {
               clearTimeout(scrollTimeoutRef.current);
               scrollTimeoutRef.current = null;
+            }
+            if (failsafeTimeoutRef.current) {
+              clearTimeout(failsafeTimeoutRef.current);
+              failsafeTimeoutRef.current = null;
             }
             // Only reset the scrolling flag, let throttle expire naturally
             isScrollingRef.current = false;
@@ -200,9 +218,12 @@ export const useScrollContainer = ({
 
     return () => {
       observer.disconnect();
-      // Clean up timeout on unmount
+      // Clean up timeouts on unmount
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
+      }
+      if (failsafeTimeoutRef.current) {
+        clearTimeout(failsafeTimeoutRef.current);
       }
     };
   }, [totalSections]);
@@ -211,17 +232,21 @@ export const useScrollContainer = ({
   useEffect(() => {
     const checkStuckState = () => {
       const now = Date.now();
-      // If scrolling flag has been true for more than 5 seconds, force unlock
-      if (isScrollingRef.current && now - lastScrollTimeRef.current > 5000) {
+      // If scrolling flag has been true for more than 2 seconds, force unlock
+      if (isScrollingRef.current && now - lastScrollTimeRef.current > 2000) {
         isScrollingRef.current = false;
         if (scrollTimeoutRef.current) {
           clearTimeout(scrollTimeoutRef.current);
           scrollTimeoutRef.current = null;
         }
+        if (failsafeTimeoutRef.current) {
+          clearTimeout(failsafeTimeoutRef.current);
+          failsafeTimeoutRef.current = null;
+        }
       }
     };
 
-    const interval = setInterval(checkStuckState, 1000); // Check every second
+    const interval = setInterval(checkStuckState, 500); // Check every 500ms for faster response
     
     return () => clearInterval(interval);
   }, []);
@@ -233,13 +258,29 @@ export const useScrollContainer = ({
 
       // Use momentum detection from useTouchpadDetection hook
       const isMomentumScroll = detectInertia(e);
+      const currentDirection = Math.sign(e.deltaY);
 
       // Filter out very small delta values (trackpad noise)
       if (!isValidDelta(e.deltaY)) {
         return;
       }
 
-      // Ignore if currently animating a scroll
+      // Check for direction change - immediately unlock scrolling if direction changed
+      if (lastScrollDirectionRef.current !== 0 && 
+          currentDirection !== lastScrollDirectionRef.current && 
+          isScrollingRef.current) {
+        isScrollingRef.current = false;
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+          scrollTimeoutRef.current = null;
+        }
+        if (failsafeTimeoutRef.current) {
+          clearTimeout(failsafeTimeoutRef.current);
+          failsafeTimeoutRef.current = null;
+        }
+      }
+
+      // Ignore if currently animating a scroll (after direction change check)
       if (isScrollingRef.current) {
         return;
       }
@@ -255,6 +296,8 @@ export const useScrollContainer = ({
 
       // Check bounds before scrolling
       if (nextSection >= 0 && nextSection < totalSections) {
+        // Update direction tracking
+        lastScrollDirectionRef.current = currentDirection;
         scrollToSection(nextSection);
       }
     };
