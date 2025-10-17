@@ -79,7 +79,9 @@ export default function DemoPage() {
         {sections.map((section, index) => (
           <section
             key={section.id}
-            ref={(el) => (sectionRefs.current[index] = el)}
+            ref={(el) => {
+              sectionRefs.current[index] = el;
+            }}
             className={`h-screen snap-start flex items-center justify-center ${section.color}`}
           >
             <div className="text-center text-white px-6">
@@ -111,7 +113,7 @@ export default function DemoPage() {
               {index === sections.length - 1 && (
                 <div className="flex gap-4 justify-center flex-wrap">
                   <a
-                    href="https://github.com/LinardsLiepenieks/react-scroll-snap-momentum"
+                    href="https://github.com/yourusername/react-scroll-snap-momentum"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-8 py-4 bg-white text-gray-900 hover:bg-gray-100 rounded-lg transition-all text-lg font-semibold"
@@ -119,7 +121,7 @@ export default function DemoPage() {
                     ⭐ View on GitHub
                   </a>
                   <a
-                    href="https://linardsliep.gumroad.com/l/react-scroll-snap"
+                    href="https://gumroad.com/l/your-product"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-8 py-4 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all text-lg font-semibold"
