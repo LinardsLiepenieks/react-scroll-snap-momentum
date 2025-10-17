@@ -228,6 +228,8 @@ A: Yes, pass custom values to `useScrollThrottle`. Start with 600/1800 and adjus
 - 💼 **LinkedIn:** [Linards Liepenieks](https://www.linkedin.com/in/linards-liepenieks/)
 - 📧 **Email:** linardsliepenieks@gmail.com
 - 📝 **Full Story:** [Read the blog post](https://dev.to/linards_liepenieks/building-custom-scroll-snap-sections-a-journey-through-mac-trackpad-hell-1k2k)
+- **[Try the Live Demo](https://react-scroll-snap-momentum.vercel.app/demo#hero)** - See it in action
+- **[Download Complete Package](https://linardsliep.gumroad.com/l/react-scroll-snap)** - Get hooks, examples, and docs (free, email required for updates)
 
 **Need help implementing this?** Reach out for a **free 20-minute consultation** to get you started. I'm happy to help with integration, customization, or troubleshooting.
 
