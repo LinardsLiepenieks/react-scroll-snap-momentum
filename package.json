@@ -1,0 +1,33 @@
+{
+  "name": "scroll-snap-momentum-library",
+  "version": "1.0.0",
+  "description": "React hooks for smooth section scrolling with Mac trackpad momentum detection",
+  "main": "hooks/useScrollContainer.ts",
+  "keywords": [
+    "react",
+    "scroll",
+    "scroll-snap",
+    "momentum",
+    "trackpad",
+    "mac",
+    "hooks",
+    "typescript"
+  ],
+  "author": "Linards Liepenieks <linardsliepenieks@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linardsliepenieks/scroll-snap-library"
+  },
+  "bugs": {
+    "url": "https://github.com/linardsliepenieks/scroll-snap-library/issues"
+  },
+  "homepage": "https://github.com/linardsliepenieks/scroll-snap-library#readme"
+}
