@@ -77,9 +77,9 @@ export default function DemoPage() {
         className="h-screen overflow-y-scroll snap-y snap-mandatory"
       >
         {sections.map((section, index) => (
-          <section
+          <div
             key={section.id}
-            ref={(el) => {
+            ref={(el: HTMLDivElement | null) => {
               sectionRefs.current[index] = el;
             }}
             className={`h-screen snap-start flex items-center justify-center ${section.color}`}
@@ -113,7 +113,7 @@ export default function DemoPage() {
               {index === sections.length - 1 && (
                 <div className="flex gap-4 justify-center flex-wrap">
                   <a
-                    href="https://github.com/yourusername/react-scroll-snap-momentum"
+                    href="https://github.com/LinardsLiepenieks/react-scroll-snap-momentum"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-8 py-4 bg-white text-gray-900 hover:bg-gray-100 rounded-lg transition-all text-lg font-semibold"
@@ -121,7 +121,7 @@ export default function DemoPage() {
                     ⭐ View on GitHub
                   </a>
                   <a
-                    href="https://gumroad.com/l/your-product"
+                    href="https://linardsliep.gumroad.com/l/react-scroll-snap"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-8 py-4 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all text-lg font-semibold"
@@ -155,7 +155,7 @@ export default function DemoPage() {
                   : 'Scroll up or use the dots to go back'}
               </p>
             </div>
-          </section>
+          </div>
         ))}
       </div>
 

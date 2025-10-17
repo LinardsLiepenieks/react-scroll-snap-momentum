@@ -102,6 +102,8 @@ export const useScrollContainer = ({
 }: UseScrollContainerProps): UseScrollContainerReturn => {
   const [currentSection, setCurrentSection] = useState(0);
   const isScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastScrollTimeRef = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -119,7 +121,7 @@ export const useScrollContainer = ({
 
   const { isThrottled, updateThrottle, getThrottleStatus } = useScrollThrottle({
     normalThrottle: 600, // Responsive for intentional scrolls
-    momentumThrottle: 1800, // Covers full momentum cascade (~2-3s)
+    momentumThrottle: 1200, // Reduced from 1800ms to prevent excessive delays
     debug: false, // Set to true for development debugging
   });
 
@@ -132,6 +134,18 @@ export const useScrollContainer = ({
       const targetElement = sectionRefs.current[sectionIndex];
       if (targetElement) {
         isScrollingRef.current = true;
+        lastScrollTimeRef.current = Date.now();
+        
+        // Clear any existing timeout
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        
+        // Set timeout to unlock scrolling if intersection observer fails
+        scrollTimeoutRef.current = setTimeout(() => {
+          isScrollingRef.current = false;
+        }, 2000); // 2 second safety timeout
+        
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         setCurrentSection(sectionIndex);
         updateURL(sectionIndex);
@@ -167,6 +181,11 @@ export const useScrollContainer = ({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            // Clear timeout since intersection observer worked
+            if (scrollTimeoutRef.current) {
+              clearTimeout(scrollTimeoutRef.current);
+              scrollTimeoutRef.current = null;
+            }
             // Only reset the scrolling flag, let throttle expire naturally
             isScrollingRef.current = false;
           }
@@ -179,8 +198,33 @@ export const useScrollContainer = ({
       if (section) observer.observe(section);
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      // Clean up timeout on unmount
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
   }, [totalSections]);
+
+  // Periodic stuck prevention check
+  useEffect(() => {
+    const checkStuckState = () => {
+      const now = Date.now();
+      // If scrolling flag has been true for more than 5 seconds, force unlock
+      if (isScrollingRef.current && now - lastScrollTimeRef.current > 5000) {
+        isScrollingRef.current = false;
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+          scrollTimeoutRef.current = null;
+        }
+      }
+    };
+
+    const interval = setInterval(checkStuckState, 1000); // Check every second
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Wheel event handler (mouse + trackpad)
   useEffect(() => {
@@ -189,7 +233,6 @@ export const useScrollContainer = ({
 
       // Use momentum detection from useTouchpadDetection hook
       const isMomentumScroll = detectInertia(e);
-      const throttleStatus = getThrottleStatus(isMomentumScroll);
 
       // Filter out very small delta values (trackpad noise)
       if (!isValidDelta(e.deltaY)) {
@@ -201,7 +244,7 @@ export const useScrollContainer = ({
         return;
       }
 
-      // Check adaptive throttle (600ms normal, 1800ms momentum)
+      // Check adaptive throttle (600ms normal, 1200ms momentum)
       if (isThrottled(isMomentumScroll)) {
         return;
       }
