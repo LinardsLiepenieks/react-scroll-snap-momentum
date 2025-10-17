@@ -1,231 +1,168 @@
 'use client';
 
+import { useScrollContainer } from '../../hooks/useScrollContainer';
 import Link from 'next/link';
 
-export default function Home() {
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20 text-center">
-        <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          React Scroll-Snap Momentum
-        </h1>
-        <p className="text-2xl text-gray-600 mb-8">
-          Stop fighting Mac trackpad momentum scrolling
-        </p>
-        <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-12">
-          React hooks for smooth section-by-section scrolling with intelligent
-          momentum detection using delta pattern analysis
-        </p>
+export default function DemoPage() {
+  const sections = [
+    {
+      id: 'hero',
+      title: 'Welcome',
+      color: 'bg-gradient-to-br from-blue-500 to-purple-600',
+    },
+    {
+      id: 'about',
+      title: 'About',
+      color: 'bg-gradient-to-br from-purple-500 to-pink-600',
+    },
+    {
+      id: 'features',
+      title: 'Features',
+      color: 'bg-gradient-to-br from-pink-500 to-orange-600',
+    },
+    {
+      id: 'demo',
+      title: 'Try It',
+      color: 'bg-gradient-to-br from-orange-500 to-red-600',
+    },
+    {
+      id: 'contact',
+      title: 'Get Started',
+      color: 'bg-gradient-to-br from-red-500 to-blue-600',
+    },
+  ];
 
-        <div className="flex gap-4 justify-center flex-wrap">
-          <Link
-            href="/demo"
-            className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-lg font-semibold transition-colors"
-          >
-            Try Live Demo →
-          </Link>
-          <a
-            href="https://github.com/LinardsLiepenieks/react-scroll-snap-momentum"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-4 bg-gray-800 hover:bg-gray-900 text-white rounded-lg text-lg font-semibold transition-colors"
-          >
-            ⭐ View on GitHub
-          </a>
-          <a
-            href="https://linardsliep.gumroad.com/l/react-scroll-snap"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-900 rounded-lg text-lg font-semibold transition-colors"
-          >
-            📦 Download Package
-          </a>
-        </div>
-      </section>
-
-      {/* Problem Section */}
-      <section className="container mx-auto px-6 py-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-center">The Problem</h2>
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <p className="text-lg text-gray-700 mb-4">
-              When you build custom scroll-snap sections, Mac trackpads generate{' '}
-              <strong>40+ scroll events</strong> from a single swipe due to
-              momentum/inertia.
-            </p>
-            <p className="text-lg text-gray-700">
-              This causes your page to skip multiple sections uncontrollably.
-              Users hate it. Designers hate it. You'll hate debugging it.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Solution Section */}
-      <section className="container mx-auto px-6 py-16 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-center">The Solution</h2>
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="p-6 border-2 border-gray-200 rounded-lg">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-xl font-bold mb-2">Delta Pattern Analysis</h3>
-              <p className="text-gray-600">
-                Detects momentum by analyzing scroll event timing, direction,
-                and delta decay patterns
-              </p>
-            </div>
-            <div className="p-6 border-2 border-gray-200 rounded-lg">
-              <div className="text-4xl mb-4">⚡</div>
-              <h3 className="text-xl font-bold mb-2">Adaptive Throttling</h3>
-              <p className="text-gray-600">
-                600ms for intentional scrolls, 1800ms for momentum cascades
-              </p>
-            </div>
-            <div className="p-6 border-2 border-gray-200 rounded-lg">
-              <div className="text-4xl mb-4">📱</div>
-              <h3 className="text-xl font-bold mb-2">Cross-Device Support</h3>
-              <p className="text-gray-600">
-                Works with trackpads, mice, and touch gestures on mobile
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-gray-900 rounded-lg p-6 text-white">
-            <h3 className="text-xl font-bold mb-4">Quick Start</h3>
-            <pre className="bg-gray-800 rounded p-4 overflow-x-auto text-sm">
-              <code>{`import { useScrollContainer } from './hooks/useScrollContainer';
-
-function App() {
-  const { containerRef, sectionRefs, currentSection } = 
+  const { currentSection, containerRef, sectionRefs, scrollToSection } =
     useScrollContainer({
-      totalSections: 4,
+      totalSections: sections.length,
       updateURL: (index) => {
-        window.history.pushState(null, '', \`#section-\${index}\`);
-      }
+        window.history.pushState(null, '', `#${sections[index].id}`);
+      },
     });
 
   return (
-    <div ref={containerRef} className="h-screen overflow-y-scroll">
-      {['Home', 'About', 'Services', 'Contact'].map((section, i) => (
-        <div 
-          key={section}
-          ref={el => sectionRefs.current[i] = el}
-          className="h-screen snap-start"
-        >
-          {section}
-        </div>
-      ))}
-    </div>
-  );
-}`}</code>
-            </pre>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="container mx-auto px-6 py-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-center">Features</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="flex items-start gap-4">
-              <div className="text-2xl">✅</div>
-              <div>
-                <h3 className="font-bold mb-1">Zero Dependencies</h3>
-                <p className="text-gray-600">
-                  Just React. No external libraries.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="text-2xl">✅</div>
-              <div>
-                <h3 className="font-bold mb-1">TypeScript</h3>
-                <p className="text-gray-600">Full type definitions included</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="text-2xl">✅</div>
-              <div>
-                <h3 className="font-bold mb-1">Composable Hooks</h3>
-                <p className="text-gray-600">Use individually or together</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="text-2xl">✅</div>
-              <div>
-                <h3 className="font-bold mb-1">Production Ready</h3>
-                <p className="text-gray-600">
-                  Tested across devices and browsers
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-6 py-20 text-center">
-        <h2 className="text-4xl font-bold mb-6">Ready to Try It?</h2>
-        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          See it in action with a live demo, or grab the code and start building
-        </p>
-        <div className="flex gap-4 justify-center flex-wrap">
-          <Link
-            href="/demo"
-            className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-lg font-semibold transition-colors"
-          >
-            Try Live Demo →
+    <div className="relative">
+      {/* Fixed Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold">
+            ← Back to Home
           </Link>
-          <a
-            href="https://github.com/LinardsLiepenieks/react-scroll-snap-momentum"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-900 rounded-lg text-lg font-semibold transition-colors"
-          >
-            View on GitHub
-          </a>
+          <div className="text-sm text-gray-600">
+            Section {currentSection + 1} / {sections.length}
+          </div>
         </div>
-      </section>
+      </header>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 py-12">
-        <div className="container mx-auto px-6 text-center text-gray-600">
-          <p className="mb-4">
-            Built by{' '}
-            <a
-              href="https://www.linkedin.com/in/linards-liepenieks/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              Linards Liepenieks
-            </a>
-          </p>
-          <p className="mb-4">
-            Need help implementing this?{' '}
-            <a
-              href="mailto:linardsliepenieks@gmail.com"
-              className="text-blue-600 hover:underline"
-            >
-              Free 20-minute consultation
-            </a>
-          </p>
-          <p className="text-sm">
-            <a
-              href="https://dev.to/your-blog-post"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              Read the full story
-            </a>
-            {' · '}
-            MIT License
-          </p>
-        </div>
-      </footer>
-    </main>
+      {/* Navigation Dots */}
+      <nav className="fixed right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3">
+        {sections.map((section, index) => (
+          <button
+            key={section.id}
+            onClick={() => scrollToSection(index)}
+            className={`w-3 h-3 rounded-full transition-all ${
+              currentSection === index
+                ? 'bg-white scale-125 shadow-lg'
+                : 'bg-white/40 hover:bg-white/70'
+            }`}
+            aria-label={`Go to ${section.title}`}
+            title={section.title}
+          />
+        ))}
+      </nav>
+
+      {/* Scroll Container */}
+      <div
+        ref={containerRef}
+        className="h-screen overflow-y-scroll snap-y snap-mandatory"
+      >
+        {sections.map((section, index) => (
+          <section
+            key={section.id}
+            ref={(el) => {
+              sectionRefs.current[index] = el;
+            }}
+            className={`h-screen snap-start flex items-center justify-center ${section.color}`}
+          >
+            <div className="text-center text-white px-6">
+              <h1 className="text-7xl font-bold mb-6 drop-shadow-lg">
+                {section.title}
+              </h1>
+              <p className="text-2xl opacity-90 mb-8">
+                {index === 0 &&
+                  'Try scrolling with your trackpad or mouse wheel'}
+                {index === 1 &&
+                  'Notice how it smoothly transitions between sections'}
+                {index === 2 && 'Mac trackpad momentum is detected and handled'}
+                {index === 3 && 'No more skipping multiple sections!'}
+                {index === 4 && 'Ready to use this in your project?'}
+              </p>
+
+              {/* Action Buttons */}
+              {index === 0 && (
+                <div className="flex gap-4 justify-center">
+                  <button
+                    onClick={() => scrollToSection(index + 1)}
+                    className="px-8 py-4 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all text-lg font-semibold"
+                  >
+                    Scroll Down ↓
+                  </button>
+                </div>
+              )}
+
+              {index === sections.length - 1 && (
+                <div className="flex gap-4 justify-center flex-wrap">
+                  <a
+                    href="https://github.com/yourusername/react-scroll-snap-momentum"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-4 bg-white text-gray-900 hover:bg-gray-100 rounded-lg transition-all text-lg font-semibold"
+                  >
+                    ⭐ View on GitHub
+                  </a>
+                  <a
+                    href="https://gumroad.com/l/your-product"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-4 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all text-lg font-semibold"
+                  >
+                    📦 Download Package
+                  </a>
+                </div>
+              )}
+
+              {index > 0 && index < sections.length - 1 && (
+                <div className="flex gap-4 justify-center">
+                  <button
+                    onClick={() => scrollToSection(index - 1)}
+                    className="px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all font-semibold"
+                  >
+                    ↑ Previous
+                  </button>
+                  <button
+                    onClick={() => scrollToSection(index + 1)}
+                    className="px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all font-semibold"
+                  >
+                    Next ↓
+                  </button>
+                </div>
+              )}
+
+              {/* Hint Text */}
+              <p className="mt-12 text-sm opacity-75">
+                {index < sections.length - 1
+                  ? 'Use scroll wheel, trackpad, or click the dots →'
+                  : 'Scroll up or use the dots to go back'}
+              </p>
+            </div>
+          </section>
+        ))}
+      </div>
+
+      {/* Instructions Overlay (shows briefly on load) */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 bg-black/80 text-white px-6 py-3 rounded-full text-sm backdrop-blur-sm animate-pulse">
+        👆 Try scrolling with your trackpad or mouse wheel
+      </div>
+    </div>
   );
 }
